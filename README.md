@@ -435,22 +435,18 @@ GameBox 在设计时充分考虑了性能优化，以下是实际测试结果和
 | 特性 | GameBox | [steam-shortcuts-util](https://crates.io/crates/steam-shortcuts-util) | [lutris-rs](https://github.com/lutris/lutris) | [playnite-sdk](https://github.com/JosefNemec/Playnite) |
 |------|---------|---------|---------|---------|
 | **语言** | Rust | Rust | Python | C# |
-| **多数据源支持** | ✅ (DLsite, IGDB, TheGamesDB) | ❌ (仅 Steam) | ✅ (多平台) | ✅ (插件系统) |
-| **异步并发** | ✅ (Tokio) | ❌ | ⚠️ (部分) | ✅ (.NET async) |
-| **智能匹配** | ✅ (Levenshtein + 置信度) | ❌ | ⚠️ (基础匹配) | ✅ |
-| **缓存机制** | ✅ (1 小时 TTL) | ❌ | ✅ | ✅ |
-| **扫描性能 (500 游戏)** | ~3.2 秒 | N/A | ~8-12 秒 | ~5-7 秒 |
-| **API 设计** | ✅ 流式 API | ⚠️ 命令式 | ⚠️ 命令式 | ✅ 插件 API |
-| **可扩展性** | ✅ Trait 系统 | ❌ | ✅ | ✅ |
-| **跨平台** | ⚠️ (目前仅 Windows) | ✅ | ✅ | ⚠️ (Windows 优先) |
-| **JSON 导出** | ✅ | ❌ | ✅ | ✅ |
-| **游戏启动** | ✅ | ❌ | ✅ | ✅ |
-
-**说明**：
-- ✅ = 完全支持
-- ⚠️ = 部分支持或有限制
-- ❌ = 不支持
-- N/A = 不适用或无法测试
+| **多数据源支持** | DLsite, IGDB, TheGamesDB + 自定义 | 仅 Steam 快捷方式 | Steam, GOG, Epic 等 20+ 平台 | 插件系统支持 30+ 平台 |
+| **异步并发** | Tokio 异步运行时，并发查询 | 同步阻塞 I/O | asyncio 部分异步 | .NET Task 异步模型 |
+| **智能匹配** | Levenshtein 算法 + 多维度置信度评分 | 精确匹配 Steam ID | 基于文件名的简单匹配 | 模糊匹配 + 手动选择 |
+| **缓存机制** | 内存缓存，TTL 1 小时 | 无缓存 | SQLite 持久化缓存 | LiteDB 数据库缓存 |
+| **扫描性能 (500 游戏)** | ~3.2 秒 (多线程并行) | N/A (仅处理快捷方式) | ~8-12 秒 (单线程) | ~5-7 秒 (多线程) |
+| **API 设计** | 流式构建器模式，链式调用 | 命令行工具，无 API | 命令式 API | 事件驱动插件 API |
+| **可扩展性** | Trait 系统，易于添加数据源 | 不可扩展 | 配置文件扩展 | 强大的插件系统 (.NET) |
+| **跨平台** | 目前仅 Windows (.exe 扫描) | Linux, Windows, macOS | Linux 优先，支持 Windows | Windows 优先，实验性 Linux |
+| **JSON 导出** | 内置 JSON 导出 | 无导出功能 | YAML/JSON 配置 | 支持多种格式导出 |
+| **游戏启动** | 原生支持，多启动项选择 | 仅生成快捷方式 | 完整启动器功能 | 完整启动器 + 模拟器 |
+| **元数据质量** | 多源聚合 + 置信度排序 | 依赖 Steam 数据 | 依赖平台 API | 社区数据库 + IGDB |
+| **限流保护** | 信号量控制，最多 5 并发 | N/A | 无限流 | 内置速率限制 |
 
 ### 性能对比：串行 vs 并发
 
