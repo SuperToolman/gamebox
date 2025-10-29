@@ -1,0 +1,18 @@
+# Rust build artifacts
+/target
+Cargo.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test output files
+*.json
+!examples/*.json
+
+# Debug files
+*.pdb
