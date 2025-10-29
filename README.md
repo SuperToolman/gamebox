@@ -26,21 +26,21 @@
 - 📊 **游戏统计分析**：导出游戏数据进行统计分析
 - 🛠️ **自定义工具开发**：作为基础库集成到你的游戏相关工具中
 
-## Features
+## 功能特性
 
-- 🔍 **Smart Game Scanning** - Automatically scans directories for game executables and intelligently groups them by game root directory
-- 🌐 **Multiple Database Providers** - Supports DLsite, IGDB, and TheGamesDB with extensible provider system
-- 🎯 **Intelligent Matching** - Uses Levenshtein distance algorithm for fuzzy title matching with confidence scoring
-- ⚡ **High Performance** - Parallel file scanning using multi-threading and concurrent API queries
-- 📦 **Flexible API** - Fluent builder pattern with method chaining for easy configuration
-- 💾 **Smart Caching** - Built-in result caching with configurable TTL (1 hour default)
-- 🚦 **Rate Limiting** - Automatic API rate limiting to prevent hitting provider limits
-- 📊 **JSON Export** - Export scan and search results to JSON format
-- 🔧 **Extensible** - Easy to add custom game database providers
+- 🔍 **智能游戏扫描** - 自动扫描目录中的游戏可执行文件，智能分组到游戏根目录
+- 🌐 **多数据源支持** - 支持 DLsite、IGDB 和 TheGamesDB，可扩展的数据源系统
+- 🎯 **智能匹配** - 使用 Levenshtein 距离算法进行模糊标题匹配，带置信度评分
+- ⚡ **高性能** - 多线程并行文件扫描和并发 API 查询
+- 📦 **灵活的 API** - 流式构建器模式，支持方法链式调用，配置简单
+- 💾 **智能缓存** - 内置结果缓存，可配置 TTL（默认 1 小时）
+- 🚦 **限流保护** - 自动 API 限流，防止触发数据源限制
+- 📊 **JSON 导出** - 将扫描和搜索结果导出为 JSON 格式
+- 🔧 **可扩展** - 轻松添加自定义游戏数据库提供者
 
-## Installation
+## 安装
 
-Add this to your `Cargo.toml`:
+在你的 `Cargo.toml` 中添加：
 
 ```toml
 [dependencies]
@@ -116,9 +116,9 @@ GameScanner::new()                    // 创建扫描器实例
 - **限流保护**：最多 5 个并发 API 请求，防止触发限流
 - **滚动数组优化**：Levenshtein 算法使用 O(n) 空间复杂度而非 O(n²)
 
-## Quick Start
+## 快速入门
 
-### Scanning Local Game Directory
+### 扫描本地游戏目录
 
 ```rust
 use gamebox::scan::GameScanner;
@@ -149,7 +149,7 @@ async fn main() {
 }
 ```
 
-### Searching Game Databases
+### 搜索游戏数据库
 
 ```rust
 use gamebox::scan::GameScanner;
@@ -180,7 +180,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-### Exporting Results to JSON
+### 导出结果为 JSON
 
 ```rust
 use gamebox::scan::GameScanner;
@@ -212,22 +212,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-## Supported Database Providers
+## 支持的数据库提供者
 
 ### DLsite
-- **Priority**: 90 (Highest for Japanese games)
-- **Best for**: Visual novels, Japanese RPGs, doujin games
-- **No credentials required**
+- **优先级**: 90（日系游戏最高优先级）
+- **适用于**: 视觉小说、日系 RPG、同人游戏
+- **无需凭证**
 
 ```rust
 let scanner = GameScanner::new()
     .with_dlsite_provider().await;
 ```
 
-### IGDB (Internet Game Database)
-- **Priority**: 80
-- **Best for**: Western games, AAA titles, indie games
-- **Requires**: Twitch API credentials ([Get credentials](https://api-docs.igdb.com/#account-creation))
+### IGDB (互联网游戏数据库)
+- **优先级**: 80
+- **适用于**: 欧美游戏、3A 大作、独立游戏
+- **需要**: Twitch API 凭证 ([获取凭证](https://api-docs.igdb.com/#account-creation))
 
 ```rust
 let scanner = GameScanner::new()
@@ -238,16 +238,16 @@ let scanner = GameScanner::new()
 ```
 
 ### TheGamesDB
-- **Priority**: 70
-- **Best for**: Classic games, retro games, multi-platform titles
-- **No credentials required**
+- **优先级**: 70
+- **适用于**: 经典游戏、复古游戏、多平台游戏
+- **无需凭证**
 
 ```rust
 let scanner = GameScanner::new()
     .with_thegamesdb_provider().await;
 ```
 
-### Custom Providers
+### 自定义数据源
 
 你可以实现自己的游戏数据库提供者：
 
@@ -296,95 +296,95 @@ let scanner = GameScanner::new()
     .with_provider(Arc::new(MyCustomProvider)).await;
 ```
 
-## How It Works
+## 工作原理
 
-### Scanning Process
+### 扫描流程
 
-1. **Parallel File Scanning** - Uses `ignore` crate with multi-threading to quickly scan directories for `.exe` files
-2. **Intelligent Grouping** - Groups executables by their common parent directory to identify game root folders
-3. **Pattern Matching** - Extracts game titles by removing version numbers, platform tags, and other noise
-4. **Metadata Fetching** - Queries registered providers in parallel with rate limiting
-5. **Confidence Scoring** - Ranks results based on title similarity, data completeness, and provider priority
+1. **并行文件扫描** - 使用 `ignore` crate 配合多线程快速扫描目录中的 `.exe` 文件
+2. **智能分组** - 根据可执行文件的公共父目录进行分组，识别游戏根文件夹
+3. **模式匹配** - 通过移除版本号、平台标签等噪音信息提取游戏标题
+4. **元数据获取** - 并行查询已注册的数据源，带限流保护
+5. **置信度评分** - 根据标题相似度、数据完整度和数据源优先级对结果排序
 
-### Confidence Scoring Algorithm
+### 置信度评分算法
 
-The confidence score (0.0 - 1.0) is calculated based on:
+置信度分数（0.0 - 1.0）基于以下因素计算：
 
-- **Title Similarity** (70%): Levenshtein distance between search query and result title
-- **Data Completeness** (30%): Presence of metadata fields (cover, description, release date, etc.)
-- **Provider Priority**: Higher priority providers get slight boost
+- **标题相似度** (70%)：搜索查询与结果标题之间的 Levenshtein 距离
+- **数据完整度** (30%)：元数据字段的存在性（封面、简介、发行日期等）
+- **数据源优先级**：优先级更高的数据源获得轻微加成
 
-### Caching Strategy
+### 缓存策略
 
-- Results are cached for 1 hour by default
-- Cache key is the search query string
-- Reduces API calls and improves performance for repeated queries
+- 默认缓存结果 1 小时
+- 缓存键为搜索查询字符串
+- 减少 API 调用，提高重复查询的性能
 
-## Architecture
+## 项目架构
 
 ```
 gamebox/
-├── models/          # Data structures (GameInfo, GameMetadata)
-├── providers/       # Database provider implementations
+├── models/          # 数据结构 (GameInfo, GameMetadata)
+├── providers/       # 数据库提供者实现
 │   ├── dlsite_provider.rs
 │   ├── igdb_provider.rs
 │   └── thegamesdb_provider.rs
-├── scan/            # Scanning logic
-│   ├── scanner.rs   # Main GameScanner
+├── scan/            # 扫描逻辑
+│   ├── scanner.rs   # 主扫描器 GameScanner
 │   ├── game_grouping.rs
-│   ├── patterns.rs  # Regex patterns for title extraction
+│   ├── patterns.rs  # 标题提取的正则表达式模式
 │   └── utils.rs
-├── traits/          # Trait definitions
+├── traits/          # Trait 定义
 │   ├── game_metadata_filter.rs
 │   └── json_output.rs
-└── logger.rs        # Logging utilities
+└── logger.rs        # 日志工具
 ```
 
-## Examples
+## 示例
 
-See the [`examples/`](examples/) directory for more detailed examples:
+查看 [`examples/`](examples/) 目录获取更详细的示例：
 
-- [`usage_example.rs`](examples/usage_example.rs) - Comprehensive usage examples
+- [`usage_example.rs`](examples/usage_example.rs) - 综合使用示例
 
-Run examples with:
+运行示例：
 
 ```bash
 cargo run --example usage_example
 ```
 
-## Requirements
+## 环境要求
 
-- Rust 2021 edition or later
-- Tokio async runtime
-- For IGDB provider: Twitch API credentials(If you need IGDB)
+- Rust 2021 edition 或更高版本
+- Tokio 异步运行时
+- IGDB 数据源需要：Twitch API 凭证（如果需要使用 IGDB）
 
-## Performance
+## 性能
 
-- **Parallel Scanning**: Uses all available CPU cores for file scanning
-- **Concurrent API Queries**: Up to 5 concurrent API requests (configurable)
-- **Smart Caching**: Reduces redundant API calls
-- **Efficient Algorithms**: Optimized Levenshtein distance calculation with rolling arrays
+- **并行扫描**：使用所有可用 CPU 核心进行文件扫描
+- **并发 API 查询**：最多 5 个并发 API 请求（可配置）
+- **智能缓存**：减少冗余 API 调用
+- **高效算法**：使用滚动数组优化的 Levenshtein 距离计算
 
-## Contributing
+## 贡献
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+欢迎贡献！请随时提交 Pull Request。
 
-## License
+## 许可证
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
 
-## Acknowledgments
+## 致谢
 
-- [dlsite-rs](https://github.com/ozonezone/dlsite-rs) - DLsite API client
-- [IGDB API](https://api-docs.igdb.com/) - Internet Game Database
-- [TheGamesDB](https://thegamesdb.net/) - Classic game database
+- [dlsite-rs](https://github.com/ozonezone/dlsite-rs) - DLsite API 客户端
+- [IGDB API](https://api-docs.igdb.com/) - 互联网游戏数据库
+- [TheGamesDB](https://thegamesdb.net/) - 经典游戏数据库
 
-## Roadmap
+## 开发路线图
 
-- [ ] Add more database providers (Steam, GOG, etc.)
-- [ ] Support for non-Windows platforms
-- [ ] GUI application
-- [ ] Plugin system for custom metadata enrichment
-- [ ] Database export/import functionality
-- [ ] Game launcher integration
+- [ ] 添加更多数据库提供者（Steam、GOG 等）
+- [ ] 支持非 Windows 平台
+- [ ] GUI 应用程序
+- [ ] 插件系统用于自定义元数据增强
+- [ ] 数据库导出/导入功能
+- [ ] 游戏启动器集成
 
