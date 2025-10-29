@@ -1,6 +1,6 @@
 [package]
 name = "gamebox"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["SuperToolman <2639983693@qq.com>"]
 description = "A powerful Rust library for game collection management with automatic scanning, intelligent metadata retrieval from multiple databases (DLsite, IGDB, TheGamesDB), and smart matching algorithms"
