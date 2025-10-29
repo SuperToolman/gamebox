@@ -48,7 +48,7 @@ pub trait JsonOutput: Serialize {
     ///     Ok(())
     /// }
     /// ```
-    fn out_json<P: AsRef<Path>>(&self, path: Option<P>) -> Result<String, Box<dyn std::error::Error>> {
+    fn out_json<P: AsRef<Path>>(&self, path: Option<P>) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         // 确定输出路径
         let output_path = if let Some(p) = path {
             p.as_ref().to_path_buf()

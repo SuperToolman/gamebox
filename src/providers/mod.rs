@@ -168,10 +168,10 @@ pub trait GameDatabaseProvider: Send + Sync {
     fn name(&self) -> &str;
 
     /// 搜索游戏
-    async fn search(&self, title: &str) -> Result<Vec<GameMetadata>, Box<dyn std::error::Error>>;
+    async fn search(&self, title: &str) -> Result<Vec<GameMetadata>, Box<dyn std::error::Error + Send + Sync>>;
 
     /// 获取游戏详情（如果支持）
-    async fn get_by_id(&self, _id: &str) -> Result<GameMetadata, Box<dyn std::error::Error>> {
+    async fn get_by_id(&self, _id: &str) -> Result<GameMetadata, Box<dyn std::error::Error + Send + Sync>> {
         Err("Not implemented".into())
     }
 
@@ -224,7 +224,7 @@ impl GameDatabaseMiddleware {
     }
 
     /// 搜索游戏
-    pub async fn search(&self, title: &str) -> Result<Vec<GameQueryResult>, Box<dyn std::error::Error>> {
+    pub async fn search(&self, title: &str) -> Result<Vec<GameQueryResult>, Box<dyn std::error::Error + Send + Sync>> {
         self.search_with_timeout(title, std::time::Duration::from_secs(30)).await
     }
 
@@ -233,7 +233,7 @@ impl GameDatabaseMiddleware {
         &self,
         title: &str,
         timeout: std::time::Duration
-    ) -> Result<Vec<GameQueryResult>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<GameQueryResult>, Box<dyn std::error::Error + Send + Sync>> {
         let logger = get_logger();
 
         // 检查缓存
@@ -313,7 +313,7 @@ impl GameDatabaseMiddleware {
     }
 
     /// 通过 ID 获取游戏
-    pub async fn get_by_id(&self, id: &str) -> Result<GameQueryResult, Box<dyn std::error::Error>> {
+    pub async fn get_by_id(&self, id: &str) -> Result<GameQueryResult, Box<dyn std::error::Error + Send + Sync>> {
         let providers = self.providers.read().await;
 
         for provider in providers.iter() {

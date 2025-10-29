@@ -14,5 +14,8 @@ Cargo.lock
 *.json
 !examples/*.json
 
+# Test directory
+src/test/
+
 # Debug files
 *.pdb

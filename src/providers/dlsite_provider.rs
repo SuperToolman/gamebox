@@ -32,7 +32,7 @@ impl GameDatabaseProvider for DLsiteProvider {
     }
 
     /// 通过标题查找
-    async fn search(&self, title: &str) -> Result<Vec<GameMetadata>, Box<dyn std::error::Error>> {
+    async fn search(&self, title: &str) -> Result<Vec<GameMetadata>, Box<dyn std::error::Error + Send + Sync>> {
         // 使用 dlsite 库的搜索功能（新版 API）
         let search_query = SearchProductQuery {
             sex_category: Some(vec![SexCategory::Male]),
@@ -119,7 +119,7 @@ impl GameDatabaseProvider for DLsiteProvider {
     }
 
     /// 通过ID查找，在Dlsite中是指它专用的站点作品的ID，如：RJ01014447
-    async fn get_by_id(&self, id: &str) -> Result<GameMetadata, Box<dyn std::error::Error>> {
+    async fn get_by_id(&self, id: &str) -> Result<GameMetadata, Box<dyn std::error::Error + Send + Sync>> {
         // 使用 dlsite 库的 API 获取游戏详细信息（新版 API）
         match self.dlsite_client.product_api().get(id).await {
             Ok(product) => {

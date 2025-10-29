@@ -153,7 +153,7 @@ impl GameScanner {
     pub async fn search(
         self,
         search_key: String,
-    ) -> Result<Vec<crate::providers::GameQueryResult>, Box<dyn std::error::Error>> {
+    ) -> Result<Vec<crate::providers::GameQueryResult>, Box<dyn std::error::Error + Send + Sync>> {
         self.middleware
             .search_with_timeout(&search_key, std::time::Duration::from_secs(30))
             .await

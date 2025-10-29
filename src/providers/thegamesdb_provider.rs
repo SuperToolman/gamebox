@@ -25,7 +25,7 @@ impl GameDatabaseProvider for TheGamesDBProvider {
         "TheGamesDB"
     }
 
-    async fn search(&self, title: &str) -> Result<Vec<GameMetadata>, Box<dyn std::error::Error>> {
+    async fn search(&self, title: &str) -> Result<Vec<GameMetadata>, Box<dyn std::error::Error + Send + Sync>> {
         // TODO: 集成 TheGamesDB API
         // 这里是示例实现
         Ok(vec![GameMetadata {
@@ -40,7 +40,7 @@ impl GameDatabaseProvider for TheGamesDBProvider {
         }])
     }
 
-    async fn get_by_id(&self, id: &str) -> Result<GameMetadata, Box<dyn std::error::Error>> {
+    async fn get_by_id(&self, id: &str) -> Result<GameMetadata, Box<dyn std::error::Error + Send + Sync>> {
         // TODO: 通过 TheGamesDB ID 获取游戏信息
         Ok(GameMetadata {
             title: Some(format!("TheGamesDB Game {}", id)),

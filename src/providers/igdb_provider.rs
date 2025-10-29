@@ -81,7 +81,7 @@ impl IGDBProvider {
     }
 
     /// 获取访问令牌
-    async fn get_access_token(&self) -> Result<String, Box<dyn std::error::Error>> {
+    async fn get_access_token(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         // 检查是否已有令牌
         {
             let token = self.access_token.read().await;
@@ -129,7 +129,7 @@ impl GameDatabaseProvider for IGDBProvider {
         "IGDB"
     }
 
-    async fn search(&self, title: &str) -> Result<Vec<GameMetadata>, Box<dyn std::error::Error>> {
+    async fn search(&self, title: &str) -> Result<Vec<GameMetadata>, Box<dyn std::error::Error + Send + Sync>> {
         // 检查凭证
         if self.client_id.is_empty() || self.client_secret.is_empty() {
             return Err("IGDB credentials not configured".into());
@@ -209,7 +209,7 @@ impl GameDatabaseProvider for IGDBProvider {
         Ok(results)
     }
 
-    async fn get_by_id(&self, id: &str) -> Result<GameMetadata, Box<dyn std::error::Error>> {
+    async fn get_by_id(&self, id: &str) -> Result<GameMetadata, Box<dyn std::error::Error + Send + Sync>> {
         // 检查凭证
         if self.client_id.is_empty() || self.client_secret.is_empty() {
             return Err("IGDB credentials not configured".into());

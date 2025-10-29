@@ -3,7 +3,7 @@ use gamebox::scan::GameScanner;
 use gamebox::traits::JsonOutput;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // 初始化日志
     init_logger(true);
     let logger = get_logger();
