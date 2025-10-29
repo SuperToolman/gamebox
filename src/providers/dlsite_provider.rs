@@ -1,7 +1,7 @@
 use async_trait::async_trait;
-use dlsite::DlsiteClient;
-use dlsite::client::search::SearchProductQuery;
-use dlsite::interface::query::SexCategory;
+use dlsite_gamebox::DlsiteClient;
+use dlsite_gamebox::client::search::SearchProductQuery;
+use dlsite_gamebox::interface::query::SexCategory;
 use crate::models::game_meta_data::GameMetadata;
 use crate::providers::GameDatabaseProvider;
 

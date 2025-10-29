@@ -9,7 +9,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let logger = get_logger();
 
     // 定义扫描路径
-    let scan_path = "D:/Games".to_string();
+    let scan_path = String::from(r"D:\Test\save1\Game");
 
     logger.section("游戏目录扫描测试");
 

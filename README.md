@@ -126,15 +126,14 @@ use gamebox::scan::GameScanner;
 async fn main() {
     // 创建游戏扫描器实例（同步操作，无需 await）
     let game_infos = GameScanner::new()
-        .with_dlsite_provider().await           // 添加 DLsite 数据源（适合日系游戏、视觉小说）
-        .with_igdb_provider(                    // 添加 IGDB 数据源（适合欧美游戏、3A 大作），需要在 https://api-docs.igdb.com/ 注册获取凭证
-            "your_client_id".to_string(),       // 你的 Twitch Client ID
-            "your_client_secret".to_string()    // 你的 Twitch Client Secret
+        .with_dlsite_provider().await               // 添加 DLsite 数据源（适合日系游戏、视觉小说）
+        .with_igdb_provider(                        // 添加 IGDB 数据源（适合欧美游戏、3A 大作），需要在 https://api-docs.igdb.com/ 注册获取凭证
+            "your_client_id".to_string(),           // 你的 Twitch Client ID
+            "your_client_secret".to_string()        // 你的 Twitch Client Secret
         ).await
-        .scan("D:/Games".to_string()).await;    // 执行扫描，传入游戏目录路径
+        .scan("D:/Games".to_string()).await;        // 执行扫描，传入游戏目录路径（.scan会返回 Vec<GameInfo>）
 
-    // 打印找到的游戏数量
-    println!("Found {} games", game_infos.len());
+    println!("Found {} games", game_infos.len());   // 打印找到的游戏数量
 
     // 遍历所有游戏，打印标题和路径
     for game in game_infos {
@@ -145,7 +144,7 @@ async fn main() {
 
 ### 启动游戏
 
-扫描完成后，可以直接通过 `GameInfo` 启动游戏：
+扫描完成后，可以直接通过单项 `GameInfo` 启动游戏：
 
 ```rust
 use gamebox::scan::GameScanner;
@@ -157,7 +156,7 @@ async fn main() {
         .with_dlsite_provider().await
         .scan("D:/Games".to_string()).await;
 
-    // 获取第一个游戏
+    // 获取扫描结果的第一个游戏
     if let Some(game) = game_infos.first() {
         println!("准备启动游戏: {}", game.title);
 
