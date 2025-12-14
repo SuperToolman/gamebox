@@ -13,7 +13,7 @@ use crate::logger::{get_logger, LogEvent, LogLevel, ScanProgress};
 use crate::models::game_info::GameInfo;
 use crate::providers::GameDatabaseMiddleware;
 use crate::scan::game_grouping::{paths_group, PathGroupResult};
-use crate::scan::utils::calculate_directory_size_async;
+use crate::scan::utils::{calculate_directory_size_async, find_icon_path};
 
 /// 游戏扫描器
 ///
@@ -37,6 +37,7 @@ use crate::scan::utils::calculate_directory_size_async;
 pub struct GameScanner {
     /// 游戏数据库中间件
     middleware: GameDatabaseMiddleware,
+    enable_exe_icon_extract: bool,
 }
 
 impl GameScanner {
@@ -47,6 +48,7 @@ impl GameScanner {
     pub fn new() -> Self {
         GameScanner {
             middleware: GameDatabaseMiddleware::new(),
+            enable_exe_icon_extract: false,
         }
     }
 
@@ -91,6 +93,13 @@ impl GameScanner {
             .register_provider(Arc::new(TheGamesDBProvider::new()))
             .await;
         self
+    }
+
+    pub fn with_win_exe_icon(self) -> Self {
+        GameScanner {
+            middleware: self.middleware,
+            enable_exe_icon_extract: true,
+        }
     }
 
     /// 注册自定义提供者（链式调用）
@@ -448,10 +457,37 @@ impl GameScanner {
         // 游戏目录路径（root_path 已经是完整的游戏根目录路径）
         let dir_path = PathBuf::from(&item.root_path);
 
-        // 异步计算目录大小
         let byte_size = calculate_directory_size_async(dir_path.clone()).await;
+        let start_path_defualt = {
+            let mut exe_paths: Vec<(usize, String)> = item
+                .child_path
+                .iter()
+                .filter(|p| p.to_lowercase().ends_with(".exe"))
+                .map(|p| {
+                    let depth = p.matches('/').count() + p.matches('\\').count();
+                    (depth, p.clone())
+                })
+                .collect();
+            exe_paths.sort_by(|a, b| a.0.cmp(&b.0));
+            exe_paths
+                .first()
+                .map(|(_, p)| p.clone())
+                .or_else(|| item.child_path.first().cloned())
+                .unwrap_or_default()
+        };
+        let icon_path = {
+            let p = start_path_defualt.clone();
+            find_icon_path(
+                dir_path.clone(),
+                &item.child_path,
+                self.enable_exe_icon_extract,
+                &item.child_root_name,
+                Some(&p),
+            )
+            .await
+            .unwrap_or_default()
+        };
 
-        // 解析发布日期，如果没有则使用当前时间
         let parsed_release_date = if let Some(date_str) = release_date {
             // 尝试解析日期字符串
             chrono::NaiveDate::parse_from_str(&date_str, "%Y-%m-%d")
@@ -471,20 +507,22 @@ impl GameScanner {
             Utc::now()
         };
 
-        // 创建 GameInfo
-        // 如果从数据库找到了标题，使用数据库的标题；否则使用本地扫描的目录名
         let final_title = title.unwrap_or_else(|| item.child_root_name.clone());
 
-        // 设置默认启动项（使用第一个启动项）
-        let start_path_defualt = item.child_path.first().cloned().unwrap_or_default();
-
+        // sort start_path shallow → deep, tie by length
+        let mut sorted_child_path: Vec<String> = item.child_path.clone();
+        sorted_child_path.sort_by(|a, b| {
+            let da = a.matches('/').count() + a.matches('\\').count();
+            let db = b.matches('/').count() + b.matches('\\').count();
+            da.cmp(&db).then(a.len().cmp(&b.len()))
+        });
         GameInfo {
             title: final_title,
             sub_title: item.child_root_name.clone(), // 副标题始终使用本地目录名
             version: item.version.clone(),
             cover_urls,
             dir_path,
-            start_path: item.child_path.clone(),
+            start_path: sorted_child_path,
             start_path_defualt,
             description,
             release_date: parsed_release_date,
@@ -494,25 +532,58 @@ impl GameScanner {
             platform,
             byte_size,
             scan_time: Utc::now(),
+            icon_path,
         }
     }
 
     /// 构建回退的 GameInfo（当查询失败时）
     async fn build_fallback_game_info(&self, item: &PathGroupResult) -> GameInfo {
-        // root_path 已经是完整的游戏根目录路径
         let dir_path = PathBuf::from(&item.root_path);
         let byte_size = calculate_directory_size_async(dir_path.clone()).await;
+        let start_path_defualt = {
+            let mut exe_paths: Vec<(usize, String)> = item
+                .child_path
+                .iter()
+                .filter(|p| p.to_lowercase().ends_with(".exe"))
+                .map(|p| {
+                    let depth = p.matches('/').count() + p.matches('\\').count();
+                    (depth, p.clone())
+                })
+                .collect();
+            exe_paths.sort_by(|a, b| a.0.cmp(&b.0));
+            exe_paths
+                .first()
+                .map(|(_, p)| p.clone())
+                .or_else(|| item.child_path.first().cloned())
+                .unwrap_or_default()
+        };
+        let icon_path = {
+            let p = start_path_defualt.clone();
+            find_icon_path(
+                dir_path.clone(),
+                &item.child_path,
+                self.enable_exe_icon_extract,
+                &item.child_root_name,
+                Some(&p),
+            )
+            .await
+            .unwrap_or_default()
+        };
 
-        // 设置默认启动项（使用第一个启动项）
-        let start_path_defualt = item.child_path.first().cloned().unwrap_or_default();
-
+        // sort start_path shallow → deep, tie by length
+        let mut sorted_child_path: Vec<String> = item.child_path.clone();
+        sorted_child_path.sort_by(|a, b| {
+            let da = a.matches('/').count() + a.matches('\\').count();
+            let db = b.matches('/').count() + b.matches('\\').count();
+            da.cmp(&db).then(a.len().cmp(&b.len()))
+        });
         GameInfo {
             title: item.child_root_name.clone(),
             sub_title: item.child_root_name.clone(), // 副标题始终使用本地目录名
             version: item.version.clone(),
             cover_urls: Vec::new(),
             dir_path,
-            start_path: item.child_path.clone(),
+            start_path: sorted_child_path,
             start_path_defualt,
             description: None,
             release_date: Utc::now(),
@@ -522,6 +593,7 @@ impl GameScanner {
             platform: None,
             byte_size,
             scan_time: Utc::now(),
+            icon_path,
         }
     }
 }

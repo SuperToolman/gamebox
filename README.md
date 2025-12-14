@@ -487,13 +487,32 @@ TheGamesDB (1.8s) ┘
 ## 致谢
 
 - [dlsite-rs](https://github.com/ozonezone/dlsite-rs) - DLsite API 客户端（大佬提供的Dlsite的检索库）
+- [dlsite-gamebox](https://github.com/SuperToolman/dlsite-gamebox) - DLsite API 客户端（优化后的版本，已合并到本项目）]
 - [IGDB API](https://api-docs.igdb.com/)
 - [TheGamesDB](https://thegamesdb.net/)
 
 ## 后续开发计划
-
 - [ ] 添加更多数据库提供者（Steam、GOG 等）
 - [ ] 支持非 Windows 平台
 - [ ] 插件系统用于自定义元数据增强
 - [ ] 游戏启动器集成（测试阶段）
 
+## 扫描结果优化与图标提取
+
+### 启动项排序规则
+- `start_path` 列表按以下规则排序：
+  - 深度优先：从浅到深（根据路径中的分隔符数量 `/` 和 `\`）
+  - 同深度时：按字符串长度从短到长
+- `start_path_defualt` 设定为“深度最浅的 `.exe`”，与列表排序一致
+
+### 图标选择与链式开关
+- 图标选择优先级（不区分大小写）：
+  - 默认启动项目录的 `icon\icon.png` > `icon\icon.ico` > 同级目录的 `icon.png` > `icon.ico`
+  - 若未命中，再检查游戏根目录的同名路径
+- 链式开关：`with_win_exe_icon()`（Windows）
+  - 当上述路径均不存在时，尝试从 `start_path_defualt` 对应的 `.exe` 提取内嵌图标生成 `icon\icon.png`
+  - 若提取失败，`icon_path` 置空
+
+### 运行示例
+- 启用提取（默认特性已启用）：`cargo run --example scan_run`
+- 不启用提取（仅逻辑选择）：去除 `.with_win_exe_icon()` 即可

@@ -36,6 +36,7 @@ pub struct GameInfo {
     pub byte_size: u64,
     /// 扫描时间：由本地扫描结果提供，即当前时间
     pub scan_time: DateTime<Utc>,
+    pub icon_path: String,
 }
 
 impl GameInfo {
@@ -56,6 +57,7 @@ impl GameInfo {
             platform: None,
             byte_size: 0,
             scan_time: Utc::now(),
+            icon_path: String::new(),
         }
     }
 
